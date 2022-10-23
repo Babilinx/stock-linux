@@ -166,8 +166,26 @@ squirrel get dhcpcd
 
 squirrel get wpasupplicant
 
-read """Now follow the suite of the guide (`Create the /etc/fstab file by following a good guide ^^` to `Mount your UEFI partition to /mnt if you're on UEFI`)
-When you have finish, just launch `install-b.sh`
-"""
+echo "Now, follow a guide to write the fstab"
+sleep 3
 
-exit
+nano -w /etc/fstab
+
+squirrel get grub-efi
+
+grub-install --target=x86_64-efi --efi-directory=/mnt
+
+squirrel get dracut && dracut --kver=5.19.0
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+rm /usr/lib/libbfd.a && rm /usr/lib/libbfd.la
+
+read "What is the name of the user ? " USERNAME
+
+useradd -m -G users,wheel,audio,video -s /bin/bash $USERNAME
+passwd $USERNAME
+
+read "Installation finished ! Press [Enter] to reboot"
+
+shutdown -r now
